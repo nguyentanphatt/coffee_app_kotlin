@@ -12,15 +12,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CoffeeApp">
         <activity
+            android:name=".Activity.DetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.CoffeeApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".MainActivity"
             android:exported="false"

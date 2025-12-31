@@ -3,9 +3,11 @@ package com.example.coffeeapp
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.coffeeapp.Adapter.CategoryAdapter
+import com.example.coffeeapp.Adapter.PopularAdapter
 import com.example.coffeeapp.ViewModel.MainViewModel
 import com.example.coffeeapp.databinding.ActivityMainBinding
 
@@ -19,6 +21,7 @@ class MainActivity : AppCompatActivity() {
 
         initBanner()
         initCategory()
+        initPopular()
     }
 
     private fun initBanner(){
@@ -48,6 +51,20 @@ class MainActivity : AppCompatActivity() {
             binding.recyclerViewCategory.adapter = CategoryAdapter(it)
             binding.recyclerViewCategory.minimumHeight = 0
             binding.progressBarCategory.visibility = View.GONE
+        }
+    }
+
+    private fun initPopular(){
+        binding.progressBarPopular.visibility = View.VISIBLE
+        viewModel.loadPopular().observeForever {
+            binding.recyclerViewPopular.layoutManager =
+                GridLayoutManager(
+                    this,
+                    2
+                )
+            binding.recyclerViewPopular.adapter = PopularAdapter(it)
+            binding.recyclerViewPopular.minimumHeight = 0
+            binding.progressBarPopular.visibility = View.GONE
         }
     }
 }
