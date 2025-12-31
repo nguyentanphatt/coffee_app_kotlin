@@ -3,7 +3,9 @@ package com.example.coffeeapp
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.coffeeapp.Adapter.CategoryAdapter
 import com.example.coffeeapp.ViewModel.MainViewModel
 import com.example.coffeeapp.databinding.ActivityMainBinding
 
@@ -16,6 +18,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initBanner()
+        initCategory()
     }
 
     private fun initBanner(){
@@ -30,6 +33,21 @@ class MainActivity : AppCompatActivity() {
             } else {
                 binding.progressBarBanner.visibility = View.GONE
             }
+        }
+    }
+
+    private fun initCategory(){
+        binding.progressBarCategory.visibility = View.VISIBLE
+        viewModel.loadCategory().observeForever {
+            binding.recyclerViewCategory.layoutManager =
+                LinearLayoutManager(
+                    this@MainActivity,
+                    LinearLayoutManager.HORIZONTAL,
+                    false
+                )
+            binding.recyclerViewCategory.adapter = CategoryAdapter(it)
+            binding.recyclerViewCategory.minimumHeight = 0
+            binding.progressBarCategory.visibility = View.GONE
         }
     }
 }
