@@ -8,6 +8,7 @@ import com.example.coffeeapp.Domain.ItemsModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.Query
 import com.google.firebase.database.ValueEventListener
 
 class MainRepository {
@@ -80,6 +81,30 @@ class MainRepository {
                 android.util.Log.e("MainRepository", "Firebase error: ${error.message}")
             }
 
+        })
+        return listData
+    }
+
+    fun loadItemCategory(categoryId:String): LiveData<MutableList<ItemsModel>>{
+        val listData = MutableLiveData<MutableList<ItemsModel>>()
+        val ref = firebaseDatabase.getReference("Items")
+        val query: Query = ref.orderByChild("categoryId").equalTo(categoryId)
+
+        query.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<ItemsModel>()
+                for(ds in snapshot.children){
+                    val items = ds.getValue(ItemsModel::class.java)
+                    if(items!=null){
+                        list.add(items)
+                    }
+                }
+                listData.value = list
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
         })
         return listData
     }

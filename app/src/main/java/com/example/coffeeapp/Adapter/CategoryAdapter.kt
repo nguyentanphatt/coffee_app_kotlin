@@ -2,9 +2,14 @@ package com.example.coffeeapp.Adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.coffeeapp.Activity.ItemsListActivity
 import com.example.coffeeapp.Domain.CategoryModel
 import com.example.coffeeapp.R
 import com.example.coffeeapp.databinding.ViewholderCategoryBinding
@@ -34,6 +39,15 @@ class CategoryAdapter (val items: MutableList<CategoryModel>): RecyclerView.Adap
             seletedPosition = position
             notifyItemChanged(lastSelectedPosition)
             notifyItemChanged(seletedPosition)
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                val intent = Intent(context, ItemsListActivity::class.java).apply {
+                    putExtra("id", item.id)
+                    putExtra("title", item.title)
+
+                }
+                ContextCompat.startActivity(context, intent, null)
+            }, 500)
         }
         if(seletedPosition == position){
             holder.binding.titleCategory.setBackgroundResource(R.drawable.dark_brown_bg)
