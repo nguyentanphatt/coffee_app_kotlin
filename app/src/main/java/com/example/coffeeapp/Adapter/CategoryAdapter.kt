@@ -26,7 +26,6 @@ class CategoryAdapter (val items: MutableList<CategoryModel>): RecyclerView.Adap
         viewType: Int
     ): CategoryAdapter.ViewHolder {
         context = parent.context
-        //connect to viewholder
         val binding = ViewholderCategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }

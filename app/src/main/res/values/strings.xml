@@ -6,4 +6,7 @@
     <string name="get_started">Get Started</string>
     <string name="heelo">Heelo</string>
     <string name="title">title</string>
+    <string name="cart">Cart</string>
+    <string name="enter_your_discount">Enter your discount</string>
+    <string name="apply">Apply</string>
 </resources>

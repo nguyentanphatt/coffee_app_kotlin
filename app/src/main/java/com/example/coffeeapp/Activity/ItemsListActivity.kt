@@ -33,14 +33,16 @@ class ItemsListActivity : AppCompatActivity() {
     private fun initList(){
         binding.apply {
             progressBar.visibility = View.VISIBLE
-            viewModel.loadItemCategory(id).observe(this@ItemsListActivity, Observer {
-                categoryListView.layoutManager = LinearLayoutManager(
-                    this@ItemsListActivity,
-                    LinearLayoutManager.VERTICAL, false)
-
-                categoryListView.adapter = CategoryListItemAdapter(it)
-                progressBar.visibility = View.GONE
-            })
+            viewModel.loadItemCategory(id)
+                .observe(this@ItemsListActivity) { items ->
+                    categoryListView.layoutManager = LinearLayoutManager(
+                        this@ItemsListActivity,
+                        LinearLayoutManager.VERTICAL,
+                        false
+                    )
+                    categoryListView.adapter = CategoryListItemAdapter(items)
+                    progressBar.visibility = View.GONE
+                }
             backBtn.setOnClickListener {
                 finish()
             }

@@ -1,27 +1,44 @@
 package com.example.coffeeapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.coffeeapp.Activity.CartActivity
+import com.example.coffeeapp.Activity.LoginActivity
 import com.example.coffeeapp.Adapter.CategoryAdapter
 import com.example.coffeeapp.Adapter.PopularAdapter
 import com.example.coffeeapp.ViewModel.MainViewModel
 import com.example.coffeeapp.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     private val viewModel = MainViewModel()
+    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        auth = FirebaseAuth.getInstance()
+        checkAuthAndLoadData()
+    }
 
-        initBanner()
-        initCategory()
-        initPopular()
+    private fun checkAuthAndLoadData() {
+        val currentUser = auth.currentUser
+
+        if (currentUser == null) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        } else {
+            initBanner()
+            initCategory()
+            initPopular()
+            initBottomNavigation()
+        }
     }
 
     private fun initBanner(){
@@ -41,14 +58,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun initCategory(){
         binding.progressBarCategory.visibility = View.VISIBLE
-        viewModel.loadCategory().observeForever {
-            binding.recyclerViewCategory.layoutManager =
-                LinearLayoutManager(
+        viewModel.loadCategory().observe(this) { categories ->
+            binding.recyclerViewCategory.apply {
+                layoutManager = LinearLayoutManager(
                     this@MainActivity,
                     LinearLayoutManager.HORIZONTAL,
                     false
                 )
-            binding.recyclerViewCategory.adapter = CategoryAdapter(it)
+                adapter = CategoryAdapter(categories)
+                minimumHeight = 0
+            }
             binding.recyclerViewCategory.minimumHeight = 0
             binding.progressBarCategory.visibility = View.GONE
         }
@@ -56,15 +75,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun initPopular(){
         binding.progressBarPopular.visibility = View.VISIBLE
-        viewModel.loadPopular().observeForever {
-            binding.recyclerViewPopular.layoutManager =
-                GridLayoutManager(
-                    this,
-                    2
-                )
-            binding.recyclerViewPopular.adapter = PopularAdapter(it)
+        viewModel.loadPopular().observe(this) { items ->
+            binding.recyclerViewPopular.apply {
+                layoutManager = GridLayoutManager(this@MainActivity, 2)
+                adapter = PopularAdapter(items)
+                minimumHeight = 0
+            }
             binding.recyclerViewPopular.minimumHeight = 0
             binding.progressBarPopular.visibility = View.GONE
+        }
+    }
+
+    fun initBottomNavigation(){
+        binding.cartButton.setOnClickListener {
+            startActivity(Intent(this, CartActivity::class.java))
         }
     }
 }

@@ -16,15 +16,16 @@ class MainRepository {
         "https://coffee-app-dcd84-default-rtdb.asia-southeast1.firebasedatabase.app"
     )
 
-    fun loadBanner(): LiveData<MutableList<BannerModel>>{
+    fun loadBanner(): LiveData<MutableList<BannerModel>> {
         val listData = MutableLiveData<MutableList<BannerModel>>()
         val ref = firebaseDatabase.getReference("Banner")
-        ref.addValueEventListener(object: ValueEventListener{
+
+        ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<BannerModel>()
-                for(ds in snapshot.children){
+                for (ds in snapshot.children) {
                     val banner = ds.getValue(BannerModel::class.java)
-                    if(banner!=null){
+                    if (banner != null) {
                         list.add(banner)
                     }
                 }
@@ -33,21 +34,28 @@ class MainRepository {
 
             override fun onCancelled(error: DatabaseError) {
                 android.util.Log.e("MainRepository", "Firebase error: ${error.message}")
-            }
+                android.util.Log.e("MainRepository", "Error code: ${error.code}")
 
+                if (error.code == DatabaseError.PERMISSION_DENIED) {
+                    android.util.Log.e("MainRepository", "Permission denied - User not authenticated")
+                }
+
+                listData.value = mutableListOf()
+            }
         })
         return listData
     }
 
-    fun loadCategory(): LiveData<MutableList<CategoryModel>>{
+    fun loadCategory(): LiveData<MutableList<CategoryModel>> {
         val listData = MutableLiveData<MutableList<CategoryModel>>()
         val ref = firebaseDatabase.getReference("Category")
-        ref.addValueEventListener(object: ValueEventListener{
+
+        ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<CategoryModel>()
-                for(ds in snapshot.children){
+                for (ds in snapshot.children) {
                     val category = ds.getValue(CategoryModel::class.java)
-                    if(category!=null){
+                    if (category != null) {
                         list.add(category)
                     }
                 }
@@ -56,21 +64,25 @@ class MainRepository {
 
             override fun onCancelled(error: DatabaseError) {
                 android.util.Log.e("MainRepository", "Firebase error: ${error.message}")
+                if (error.code == DatabaseError.PERMISSION_DENIED) {
+                    android.util.Log.e("MainRepository", "Permission denied - User not authenticated")
+                }
+                listData.value = mutableListOf()
             }
-
         })
         return listData
     }
 
-    fun loadPopular(): LiveData<MutableList<ItemsModel>>{
+    fun loadPopular(): LiveData<MutableList<ItemsModel>> {
         val listData = MutableLiveData<MutableList<ItemsModel>>()
         val ref = firebaseDatabase.getReference("Popular")
-        ref.addValueEventListener(object: ValueEventListener{
+
+        ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<ItemsModel>()
-                for(ds in snapshot.children){
+                for (ds in snapshot.children) {
                     val popular = ds.getValue(ItemsModel::class.java)
-                    if(popular!=null){
+                    if (popular != null) {
                         list.add(popular)
                     }
                 }
@@ -79,8 +91,11 @@ class MainRepository {
 
             override fun onCancelled(error: DatabaseError) {
                 android.util.Log.e("MainRepository", "Firebase error: ${error.message}")
+                if (error.code == DatabaseError.PERMISSION_DENIED) {
+                    android.util.Log.e("MainRepository", "Permission denied - User not authenticated")
+                }
+                listData.value = mutableListOf()
             }
-
         })
         return listData
     }

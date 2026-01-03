@@ -2,74 +2,92 @@ package com.example.coffeeapp.Activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.IntegerRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.coffeeapp.Domain.ItemsModel
-import com.example.coffeeapp.MainActivity
 import com.example.coffeeapp.R
+import com.example.coffeeapp.ViewModel.CartViewModel
 import com.example.coffeeapp.databinding.ActivityDetailBinding
-import com.example.project1762.Helper.ManagmentCart
+import com.google.firebase.auth.FirebaseAuth
 
 class DetailActivity : AppCompatActivity() {
     lateinit var binding: ActivityDetailBinding
     private lateinit var item: ItemsModel
-    private lateinit var managementCart: ManagmentCart
+
+    private lateinit var cartViewModel: CartViewModel
+    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding= ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        managementCart= ManagmentCart(this)
+        auth = FirebaseAuth.getInstance()
+        cartViewModel = ViewModelProvider(this)[CartViewModel::class.java]
         bundle()
         initSizeList()
     }
 
-    private fun bundle(){
+    private fun bundle() {
         binding.apply {
-            item= intent.getSerializableExtra("object") as ItemsModel
+            item = intent.getSerializableExtra("object") as ItemsModel
 
             Glide.with(this@DetailActivity)
                 .load(item.picUrl[0])
                 .into(binding.pictureItem)
 
-            itemDetailTitle.text= item.title
-            description.text= item.description
+            itemDetailTitle.text = item.title
+            description.text = item.description
             price.text = "$" + item.price
             rating.text = item.rating.toString()
 
             addToCartBtn.setOnClickListener {
-                item.numberInCart = Integer.valueOf(
-                    numOfItem.text.toString()
-                )
-                managementCart.insertItems(item)
+                val currentUser = auth.currentUser
+                if (currentUser == null) {
+                    Toast.makeText(
+                        this@DetailActivity,
+                        "Please login first",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    startActivity(Intent(this@DetailActivity, LoginActivity::class.java))
+                    return@setOnClickListener
+                }
+
+                item.numberInCart = numOfItem.text.toString().toInt()
+                cartViewModel.addToCart(currentUser.uid, item)
+
+                Toast.makeText(
+                    this@DetailActivity,
+                    "Added to cart",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             backBtn.setOnClickListener {
-                startActivity(Intent(this@DetailActivity, MainActivity::class.java))
+                finish()
             }
 
             incBtn.setOnClickListener {
-                numOfItem.text = (item.numberInCart + 1).toString()
-                item.numberInCart++
+                val currentNum = numOfItem.text.toString().toIntOrNull() ?: 1
+                val newNum = currentNum + 1
+                numOfItem.text = newNum.toString()
             }
 
             decBtn.setOnClickListener {
-                if(item.numberInCart > 1){
-                    numOfItem.text = (item.numberInCart - 1).toString()
-                    item.numberInCart--
+                val currentNum = numOfItem.text.toString().toIntOrNull() ?: 1
+                if (currentNum > 1) {
+                    val newNum = currentNum - 1
+                    numOfItem.text = newNum.toString()
                 }
             }
         }
-
-
     }
 
     private fun initSizeList(){
         binding.apply {
+            mediumBtn.setBackgroundResource(R.drawable.dark_brown_stroke)
             smallBtn.setOnClickListener {
                 smallBtn.setBackgroundResource(R.drawable.dark_brown_stroke)
                 mediumBtn.setBackgroundResource(0)
