@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.coffeeapp.Activity.CartActivity
+import com.example.coffeeapp.Activity.FavoriteActivity
 import com.example.coffeeapp.Activity.LoginActivity
 import com.example.coffeeapp.Adapter.CategoryAdapter
 import com.example.coffeeapp.Adapter.PopularAdapter
@@ -89,6 +90,10 @@ class MainActivity : AppCompatActivity() {
     fun initBottomNavigation(){
         binding.cartButton.setOnClickListener {
             startActivity(Intent(this, CartActivity::class.java))
+        }
+
+        binding.favoriteBtn.setOnClickListener {
+            startActivity(Intent(this, FavoriteActivity::class.java))
         }
     }
 }

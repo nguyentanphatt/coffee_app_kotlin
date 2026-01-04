@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.example.coffeeapp.Domain.ItemsModel
 import com.example.coffeeapp.R
 import com.example.coffeeapp.ViewModel.CartViewModel
+import com.example.coffeeapp.ViewModel.FavoriteViewModel
 import com.example.coffeeapp.databinding.ActivityDetailBinding
 import com.google.firebase.auth.FirebaseAuth
 
@@ -18,6 +19,8 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var item: ItemsModel
 
     private lateinit var cartViewModel: CartViewModel
+    private lateinit var favoriteViewModel: FavoriteViewModel
+    private var isFavorite = false
     private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,8 +29,30 @@ class DetailActivity : AppCompatActivity() {
         setContentView(binding.root)
         auth = FirebaseAuth.getInstance()
         cartViewModel = ViewModelProvider(this)[CartViewModel::class.java]
+        favoriteViewModel = ViewModelProvider(this)[FavoriteViewModel::class.java]
         bundle()
+        observeViewModels()
         initSizeList()
+    }
+
+    private fun observeViewModels() {
+        favoriteViewModel.operationStatus.observe(this) { status ->
+            when (status) {
+                is FavoriteViewModel.OperationStatus.Success -> {
+                    isFavorite = status.isFavorite
+                    binding.favoriteBtn.isSelected = isFavorite
+
+                    Toast.makeText(this, status.message, Toast.LENGTH_SHORT).show()
+                }
+                is FavoriteViewModel.OperationStatus.CheckOnly -> {
+                    isFavorite = status.isFavorite
+                    binding.favoriteBtn.isSelected = isFavorite
+                }
+                is FavoriteViewModel.OperationStatus.Error -> {
+                    Toast.makeText(this, status.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun bundle() {
@@ -42,6 +67,11 @@ class DetailActivity : AppCompatActivity() {
             description.text = item.description
             price.text = "$" + item.price
             rating.text = item.rating.toString()
+
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                favoriteViewModel.checkIsFavorite(currentUser.uid, item.title)
+            }
 
             addToCartBtn.setOnClickListener {
                 val currentUser = auth.currentUser
@@ -81,6 +111,21 @@ class DetailActivity : AppCompatActivity() {
                     val newNum = currentNum - 1
                     numOfItem.text = newNum.toString()
                 }
+            }
+
+            favoriteBtn.setOnClickListener {
+                val currentUser = auth.currentUser
+                if (currentUser == null) {
+                    Toast.makeText(
+                        this@DetailActivity,
+                        "Please login first",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    startActivity(Intent(this@DetailActivity, LoginActivity::class.java))
+                    return@setOnClickListener
+                }
+
+                favoriteViewModel.toggleFavorite(currentUser.uid, item)
             }
         }
     }
