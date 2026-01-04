@@ -279,7 +279,8 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.2"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/order"
@@ -302,6 +303,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/profileBtn"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.2"

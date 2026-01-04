@@ -3,12 +3,16 @@ package com.example.coffeeapp.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.example.coffeeapp.R
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.coffeeapp.Adapter.CartAdapter
 import com.example.coffeeapp.Domain.ItemsModel
+import com.example.coffeeapp.MainActivity
 import com.example.coffeeapp.ViewModel.CartViewModel
 import com.example.coffeeapp.databinding.ActivityCartBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -59,12 +63,7 @@ class CartActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                Toast.makeText(
-                    this,
-                    "Proceeding to checkout...",
-                    Toast.LENGTH_SHORT
-                ).show()
-                // startActivity(Intent(this, CheckoutActivity::class.java))
+                showCheckoutDialog()
             }
         }
 
@@ -164,5 +163,41 @@ class CartActivity : AppCompatActivity() {
         if (auth.currentUser != null) {
             viewModel.loadCartItems(userId)
         }
+    }
+
+    private fun showCheckoutDialog() {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_checkout, null)
+        dialog.setContentView(dialogView)
+        dialog.setCancelable(false)
+
+        val processingLayout = dialogView.findViewById<LinearLayout>(R.id.processingLayout)
+        val successLayout = dialogView.findViewById<LinearLayout>(R.id.successLayout)
+        val orderIdText = dialogView.findViewById<TextView>(R.id.orderIdText)
+        val backToHomeBtn = dialogView.findViewById<androidx.appcompat.widget.AppCompatButton>(R.id.backToHomeBtn)
+
+        processingLayout.visibility = View.VISIBLE
+        successLayout.visibility = View.GONE
+
+        dialog.show()
+
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            viewModel.clearCart(userId)
+
+            val orderId = "#${System.currentTimeMillis().toString().takeLast(6)}"
+            orderIdText.text = "Order ID: $orderId"
+
+            processingLayout.visibility = View.GONE
+            successLayout.visibility = View.VISIBLE
+
+            backToHomeBtn.setOnClickListener {
+                dialog.dismiss()
+
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
+            }
+        }, 3000)
     }
 }

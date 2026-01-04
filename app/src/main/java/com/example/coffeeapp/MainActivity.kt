@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.example.coffeeapp.Activity.CartActivity
 import com.example.coffeeapp.Activity.FavoriteActivity
 import com.example.coffeeapp.Activity.LoginActivity
+import com.example.coffeeapp.Activity.ProfileActivity
 import com.example.coffeeapp.Adapter.CategoryAdapter
 import com.example.coffeeapp.Adapter.PopularAdapter
 import com.example.coffeeapp.ViewModel.MainViewModel
@@ -94,6 +95,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.favoriteBtn.setOnClickListener {
             startActivity(Intent(this, FavoriteActivity::class.java))
+        }
+
+        binding.profileBtn.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
     }
 }

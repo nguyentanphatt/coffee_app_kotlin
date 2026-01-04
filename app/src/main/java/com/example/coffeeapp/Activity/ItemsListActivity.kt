@@ -3,6 +3,7 @@ package com.example.coffeeapp.Activity
 import android.os.Bundle
 import android.view.View
 import android.widget.ListView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -25,7 +26,12 @@ class ItemsListActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityItemsListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        getBundle()
+        if (!getBundle()) {
+            // If bundle is invalid, finish activity
+            Toast.makeText(this, "Invalid category", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
         initList()
 
     }
@@ -35,13 +41,20 @@ class ItemsListActivity : AppCompatActivity() {
             progressBar.visibility = View.VISIBLE
             viewModel.loadItemCategory(id)
                 .observe(this@ItemsListActivity) { items ->
-                    categoryListView.layoutManager = LinearLayoutManager(
-                        this@ItemsListActivity,
-                        LinearLayoutManager.VERTICAL,
-                        false
-                    )
-                    categoryListView.adapter = CategoryListItemAdapter(items)
-                    progressBar.visibility = View.GONE
+                    if(items.isEmpty()){
+                        emptyView.visibility = View.VISIBLE
+                        categoryListView.visibility = View.GONE
+                        progressBar.visibility = View.GONE
+                    } else {
+                        categoryListView.layoutManager = LinearLayoutManager(
+                            this@ItemsListActivity,
+                            LinearLayoutManager.VERTICAL,
+                            false
+                        )
+                        categoryListView.adapter = CategoryListItemAdapter(items)
+                        progressBar.visibility = View.GONE
+                    }
+
                 }
             backBtn.setOnClickListener {
                 finish()
@@ -49,9 +62,20 @@ class ItemsListActivity : AppCompatActivity() {
         }
     }
 
-    private fun getBundle(){
+    private fun getBundle(): Boolean{
         id = intent.getStringExtra("id")!!
         title = intent.getStringExtra("title")!!
+        //binding.category.text = title
+        android.util.Log.d("ItemsListActivity", "Received ID: $id")
+        android.util.Log.d("ItemsListActivity", "Received Title: $title")
+
+        if (id.isEmpty()) {
+            android.util.Log.e("ItemsListActivity", "ID is empty!")
+            return false
+        }
+
         binding.category.text = title
+        return true
+
     }
 }

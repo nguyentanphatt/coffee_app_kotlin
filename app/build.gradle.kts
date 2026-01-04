@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.implementation
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -21,6 +22,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val properties = Properties()
+        val localPropertiesFile = project.rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            properties.load(localPropertiesFile.inputStream())
+        }
+
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${properties.getProperty("cloudinary.cloud_name")}\"")
+        buildConfigField("String", "CLOUDINARY_API_KEY", "\"${properties.getProperty("cloudinary.api_key")}\"")
+        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${properties.getProperty("cloudinary.api_secret")}\"")
     }
 
     buildTypes {
@@ -42,6 +53,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding=true
+        buildConfig = true
     }
 }
 
@@ -56,6 +68,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.cloudinary:cloudinary-android:3.0.2")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
